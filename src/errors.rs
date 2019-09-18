@@ -6,6 +6,7 @@ pub enum Error {
     InvalidSig,
     InvalidKey,
     HashingError,
+    HashNotFound,
 }
 
 pub use Error::*;

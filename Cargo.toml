@@ -12,4 +12,5 @@ serde_cbor = "0.10"
 bytes = { version = "0.4", features = ["serde"] }
 sodiumoxide = "0.2"
 async-trait = "0.1"
+dashmap = "1.0"
 

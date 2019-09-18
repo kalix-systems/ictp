@@ -32,22 +32,32 @@ new_type! { /// An untyped hashcode
     public Hash(HASH_BYTES);
 }
 
+impl Hash {
+    pub fn calculate(input: &[u8]) -> Result<Self, Error> {
+        let mut state = hash::State::new(HASH_BYTES, None).map_err(|_| HashingError)?;
+        state.update(input).map_err(|_| HashingError)?;
+        let hash = state.finalize().map_err(|_| HashingError)?;
+        Hash::from_slice(hash.as_ref()).ok_or(HashingError)
+    }
+}
+
 #[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Clone, Copy)]
 pub struct HashOf<T> {
     tag: std::marker::PhantomData<T>,
     hash: Hash,
 }
 
+impl<T> HashOf<T> {
+    pub fn hash(&self) -> Hash {
+        self.hash
+    }
+}
+
 impl<T: Serialize> HashOf<T> {
     pub fn hash_ser(t: &T) -> Result<HashOf<T>, Error> {
-        let mut state = hash::State::new(HASH_BYTES, None).map_err(|_| HashingError)?;
-        state
-            .update(&serde_cbor::to_vec(t)?)
-            .map_err(|_| HashingError)?;
-        let hash = state.finalize().map_err(|_| HashingError)?;
         Ok(HashOf {
             tag: std::marker::PhantomData,
-            hash: Hash::from_slice(hash.as_ref()).ok_or(HashingError)?,
+            hash: Hash::calculate(&serde_cbor::to_vec(t)?)?,
         })
     }
 }
