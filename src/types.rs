@@ -5,18 +5,6 @@ use serde::*;
 use sodiumoxide::crypto::{generichash as hash, sign};
 use std::collections::BTreeMap;
 
-#[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
-pub enum Value {
-    Null,
-    Bool(bool),
-    Int(i128),
-    Unt(u128),
-    Text(String),
-    Bytes(Bytes),
-    Vec(Vec<Value>),
-    Map(BTreeMap<Bytes, Value>),
-}
-
 // TODO: arithmetic
 #[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Hash, Clone, Copy)]
@@ -105,7 +93,7 @@ pub struct BlockBody {
     /// The timestamp (in epoch seconds), rounded down to the nearest `Block`.
     timestamp: u128,
     tree: HashOf<CTNode>,
-    options: HashOf<BTreeMap<Bytes, Value>>,
+    options: HashOf<BTreeMap<Bytes, Bytes>>,
 }
 
 pub type SignedBlock = MultiSigned<BlockBody>;
@@ -137,7 +125,7 @@ pub struct CTBody {
 #[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
 pub struct DataNode {
     children: BTreeMap<Vec<u4>, HashOf<DataNode>>,
-    fields: Value,
+    data: BTreeMap<Bytes, Bytes>,
 }
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Hash, Clone)]
@@ -160,5 +148,5 @@ pub struct SendInfo {
     sender: Hash,
     to: Recip,
     amount: u128,
-    msg: Value,
+    msg: Bytes,
 }
